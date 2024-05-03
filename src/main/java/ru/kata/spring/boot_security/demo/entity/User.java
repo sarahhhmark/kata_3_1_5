@@ -1,17 +1,13 @@
 package ru.kata.spring.boot_security.demo.entity;
 
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import javax.persistence.Id;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Column;
+import javax.persistence.*;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.Max;
+import java.util.Collection;
 
 
 @Entity
@@ -20,6 +16,13 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+    @Column
+    @Size(min = 2, max = 100, message = "Username must be min 2 and max 100 symbols")
+    @NotBlank(message = "Username is required field")
+    private String username;
+    @Column
+    @NotBlank(message = "password is required field")
+    private String password;
     @Column
     @Size(min = 2, max = 100, message = "Name must be min 2 and max 100 symbols")
     @NotBlank(message = "Name is required field")
@@ -34,6 +37,20 @@ public class User {
     @Min(value = 1, message = "Age must be greater than 0")
     @Max(value = 149, message = "Age must be less than 150")
     private byte age;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "users_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private Collection<Role> roles;
+
+    public Collection<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Collection<Role> roles) {
+        this.roles = roles;
+    }
 
     public User() {}
 
@@ -73,6 +90,22 @@ public class User {
 
     public void setAge(byte age) {
         this.age = age;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     @Override
