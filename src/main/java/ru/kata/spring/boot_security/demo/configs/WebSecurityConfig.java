@@ -9,8 +9,11 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import ru.kata.spring.boot_security.demo.configs.services.UserService;
+
+import javax.sql.DataSource;
 
 @Configuration
 @EnableWebSecurity
@@ -34,6 +37,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .authorizeRequests()
                 .antMatchers("/", "/index").permitAll()
+                .antMatchers("/admin/**").hasRole("ADMIN")
+                .antMatchers("/user").hasAnyRole("USER", "ADMIN")
                 .anyRequest().authenticated()
                 .and()
                 .formLogin().successHandler(successUserHandler)
@@ -58,6 +63,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 //
 //        return new InMemoryUserDetailsManager(user);
 //    }
+    @Bean
+    JdbcUserDetailsManager users(DataSource dataSource) {
+        return new JdbcUserDetailsManager(dataSource);
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {

@@ -1,6 +1,9 @@
 package ru.kata.spring.boot_security.demo.entity;
 
 
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import javax.persistence.*;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -12,7 +15,7 @@ import java.util.Collection;
 
 @Entity
 @Table(name = "users")
-public class User {
+public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -21,7 +24,7 @@ public class User {
     @NotBlank(message = "Username is required field")
     private String username;
     @Column
-    @NotBlank(message = "password is required field")
+    @NotBlank(message = "Password is required field")
     private String password;
     @Column
     @Size(min = 2, max = 100, message = "Name must be min 2 and max 100 symbols")
@@ -38,7 +41,7 @@ public class User {
     @Max(value = 149, message = "Age must be less than 150")
     private byte age;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany
     @JoinTable(name = "users_roles",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
@@ -96,8 +99,33 @@ public class User {
         return username;
     }
 
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return getRoles();
     }
 
     public String getPassword() {

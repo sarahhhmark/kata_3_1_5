@@ -1,6 +1,7 @@
 package ru.kata.spring.boot_security.demo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,6 +15,7 @@ import ru.kata.spring.boot_security.demo.entity.User;
 import ru.kata.spring.boot_security.demo.util.UserValidator;
 
 import javax.validation.Valid;
+import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,18 +41,17 @@ public class UserController {
     public String addNewUser(Model model) {
         User user = new User();
         model.addAttribute("user", user);
-        return "user-info-to-update";
+        return "user-info";
     }
 
     @PostMapping("/admin/saveUser")
     public String saveUser(@ModelAttribute("user") @Valid User user, BindingResult bindingResult) {
+        userValidator.validate(user, bindingResult);
         if (bindingResult.hasErrors()) {
-            return "user-info-to-update";
-        } else {
-            userValidator.validate(user, bindingResult);
-            userService.saveUser(user);
-            return "redirect:/admin";
+            return "user-info";
         }
+        userService.saveUser(user);
+        return "redirect:/admin";
     }
 
     @GetMapping("/admin/updateInfo")
@@ -58,7 +59,7 @@ public class UserController {
         Optional<User> user = userService.getUser(id);
         if (user.isPresent()) {
             model.addAttribute("user", user);
-            return "user-info-to-update";
+            return "user-info";
         } else throw new UsernameNotFoundException(String.format("Username with id = %s not found", id));
     }
 
@@ -66,5 +67,11 @@ public class UserController {
     public String deleteUser(@RequestParam("id") long id) {
         userService.deleteUser(id);
         return "redirect:/admin";
+    }
+    @GetMapping("/user")
+    public String user(Principal principal, Model model) {
+        User user = userService.findByUsername(principal.getName());
+        model.addAttribute("user", user);
+        return "user";
     }
 }
