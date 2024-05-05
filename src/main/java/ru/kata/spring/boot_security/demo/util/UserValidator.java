@@ -5,7 +5,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
-import ru.kata.spring.boot_security.demo.configs.services.UserService;
+import ru.kata.spring.boot_security.demo.services.UserService;
 import ru.kata.spring.boot_security.demo.entity.User;
 
 @Component
