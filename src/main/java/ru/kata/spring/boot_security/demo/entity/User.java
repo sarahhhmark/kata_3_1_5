@@ -19,7 +19,7 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    @Column
+    @Column(unique = true)
     @Size(min = 2, max = 100, message = "Username must be min 2 and max 100 symbols")
     @NotBlank(message = "Username is required field")
     private String username;
