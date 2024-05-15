@@ -4,12 +4,16 @@ package ru.kata.spring.boot_security.demo.entity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import javax.persistence.*;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
-import javax.validation.constraints.NotBlank;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import javax.persistence.Id;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Column;
+import javax.persistence.ManyToMany;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+
 import java.util.Collection;
 
 
@@ -19,26 +23,26 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    @Column(unique = true)
-    @Size(min = 2, max = 100, message = "Username must be min 2 and max 100 symbols")
-    @NotBlank(message = "Username is required field")
+    @Column(unique = true, nullable = false)
+//    @Size(min = 2, max = 100, message = "Username must be min 2 and max 100 symbols")
+//    @NotBlank(message = "Username is required field")
     private String username;
-    @Column
-    @NotBlank(message = "Password is required field")
+    @Column(nullable = false)
+//    @NotBlank(message = "Password is required field")
     private String password;
-    @Column
-    @Size(min = 2, max = 100, message = "Name must be min 2 and max 100 symbols")
-    @NotBlank(message = "Name is required field")
-    @Pattern(regexp = "[A-Za-z]+", message = "Name must consist only letters")
+    @Column(nullable = false)
+//    @Size(min = 2, max = 100, message = "Name must be min 2 and max 100 symbols")
+//    @NotBlank(message = "Name is required field")
+//    @Pattern(regexp = "[A-Za-z]+", message = "Name must consist only letters")
     private String name;
-    @Column
-    @Size(min = 2, max = 150, message = "Lastname must be min 2 and max 150 symbols")
-    @NotBlank(message = "Lastname is required field")
-    @Pattern(regexp = "[A-Za-z]+", message = "Lastname must consist only letters")
+    @Column(nullable = false)
+//    @Size(min = 2, max = 150, message = "Lastname must be min 2 and max 150 symbols")
+//    @NotBlank(message = "Lastname is required field")
+//    @Pattern(regexp = "[A-Za-z]+", message = "Lastname must consist only letters")
     private String lastname;
-    @Column
-    @Min(value = 1, message = "Age must be greater than 0")
-    @Max(value = 149, message = "Age must be less than 150")
+    @Column(nullable = false)
+//    @Min(value = 1, message = "Age must be greater than 0")
+//    @Max(value = 149, message = "Age must be less than 150")
     private byte age;
 
     @ManyToMany
