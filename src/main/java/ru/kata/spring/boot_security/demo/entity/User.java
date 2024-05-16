@@ -13,6 +13,11 @@ import javax.persistence.Column;
 import javax.persistence.ManyToMany;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.Max;
 
 import java.util.Collection;
 
@@ -23,27 +28,28 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    @Column(unique = true, nullable = false)
-//    @Size(min = 2, max = 100, message = "Username must be min 2 and max 100 symbols")
-//    @NotBlank(message = "Username is required field")
+    @Column(unique = true)
+    @Size(min = 2, max = 100, message = "Username must be min 2 and max 100 symbols")
+    @NotBlank(message = "Username is required field")
     private String username;
-    @Column(nullable = false)
-//    @NotBlank(message = "Password is required field")
+    @Column
+    @NotBlank(message = "Password is required field")
+    @Size(min = 4, message = "Password must be min 4 symbols")
     private String password;
-    @Column(nullable = false)
-//    @Size(min = 2, max = 100, message = "Name must be min 2 and max 100 symbols")
-//    @NotBlank(message = "Name is required field")
-//    @Pattern(regexp = "[A-Za-z]+", message = "Name must consist only letters")
+    @Column
+    @Size(min = 2, max = 100, message = "Name must be min 2 and max 100 symbols")
+    @NotBlank(message = "Name is required field")
+    @Pattern(regexp = "[A-Za-z]+", message = "Name must consist only letters")
     private String name;
-    @Column(nullable = false)
-//    @Size(min = 2, max = 150, message = "Lastname must be min 2 and max 150 symbols")
-//    @NotBlank(message = "Lastname is required field")
-//    @Pattern(regexp = "[A-Za-z]+", message = "Lastname must consist only letters")
+    @Column
+    @Size(min = 2, max = 150, message = "Lastname must be min 2 and max 150 symbols")
+    @NotBlank(message = "Lastname is required field")
+    @Pattern(regexp = "[A-Za-z]+", message = "Lastname must consist only letters")
     private String lastname;
-    @Column(nullable = false)
-//    @Min(value = 1, message = "Age must be greater than 0")
-//    @Max(value = 149, message = "Age must be less than 150")
-    private byte age;
+    @Column
+    @Min(value = 1, message = "Age must be greater than 0")
+    @Max(value = 149, message = "Age must be less than 150")
+    private int age;
 
     @ManyToMany
     @JoinTable(name = "users_roles",
@@ -91,11 +97,11 @@ public class User implements UserDetails {
         this.lastname = lastname;
     }
 
-    public byte getAge() {
+    public int getAge() {
         return age;
     }
 
-    public void setAge(byte age) {
+    public void setAge(int age) {
         this.age = age;
     }
 

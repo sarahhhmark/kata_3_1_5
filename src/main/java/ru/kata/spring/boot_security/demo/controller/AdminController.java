@@ -50,8 +50,10 @@ public class AdminController {
     public String saveUser(@ModelAttribute("user") User user, @RequestParam("role") String roleName, BindingResult bindingResult, Model model) {
         userValidator.validate(user, bindingResult);
         if (bindingResult.hasErrors()) {
-            model.addAttribute("username", user.getUsername());
-            return "username-exists-error";
+            model.addAttribute("user", user);
+            List<Role> roles = roleService.getAllRoles();
+            model.addAttribute("roles", roles);
+            return "fields-error";
         }
         userService.saveUser(user, roleName);
         return "redirect:/admin";

@@ -19,11 +19,13 @@ import java.util.stream.Collectors;
 
 @Service
 public class UserService implements UserDetailsService {
+    private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final RoleService roleService;
 
     @Autowired
-    public UserService(UserRepository userRepository, RoleService roleService) {
+    public UserService(PasswordEncoder passwordEncoder, UserRepository userRepository, RoleService roleService) {
+        this.passwordEncoder = passwordEncoder;
         this.userRepository = userRepository;
         this.roleService = roleService;
     }
@@ -50,7 +52,6 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public void saveUser(User user, String roleName) {
-        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         if (user.getId() == 0 || !userRepository.findById(user.getId()).get().getPassword().equals(user.getPassword()))
             user.setPassword(passwordEncoder.encode(user.getPassword()));
         Role role = roleService.findByName(roleName);
