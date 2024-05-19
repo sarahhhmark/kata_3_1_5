@@ -26,7 +26,8 @@ public class UserValidator implements Validator {
     public void validate(Object target, Errors errors) {
         User user = (User) target;
         try {
-            if (user.getId() == 0) {
+            if (user.getId() == 0 || !userService.getUser(user.getId())
+                    .get().getUsername().equals(user.getUsername())) {
                 userService.loadUserByUsername(user.getUsername());
             }
             else return;

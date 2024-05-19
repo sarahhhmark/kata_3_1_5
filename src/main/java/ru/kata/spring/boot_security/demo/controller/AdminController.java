@@ -15,6 +15,7 @@ import ru.kata.spring.boot_security.demo.services.RoleService;
 import ru.kata.spring.boot_security.demo.services.UserService;
 import ru.kata.spring.boot_security.demo.util.UserValidator;
 
+import javax.validation.Valid;
 import java.security.Principal;
 import java.util.List;
 
@@ -41,19 +42,31 @@ public class AdminController {
         model.addAttribute("adminUser", user);
         List<Role> roles = roleService.getAllRoles();
         model.addAttribute("roles", roles);
-        User newUser = new User();
-        model.addAttribute("newUser", newUser);
+//        User newUser = new User();
+//        model.addAttribute("newUser", newUser);
         return "all_users";
     }
 
+    @GetMapping("/addNewUser")
+    public String addNewUser(Principal principal, Model model) {
+        User admin = userService.findByUsername(principal.getName());
+        model.addAttribute("adminUser", admin);
+        User user = new User();
+        model.addAttribute("user", user);
+        List<Role> roles = roleService.getAllRoles();
+        model.addAttribute("roles", roles);
+        return "add-new-user";
+    }
+
     @PostMapping("/saveUser")
-    public String saveUser(@ModelAttribute("user") User user, @RequestParam("role") String roleName, BindingResult bindingResult, Model model) {
+    public String saveUser(@ModelAttribute("user") @Valid User user, BindingResult bindingResult, @RequestParam("role") String roleName, Model model, Principal principal) {
         userValidator.validate(user, bindingResult);
         if (bindingResult.hasErrors()) {
-            model.addAttribute("user", user);
+            User admin = userService.findByUsername(principal.getName());
+            model.addAttribute("adminUser", admin);
             List<Role> roles = roleService.getAllRoles();
             model.addAttribute("roles", roles);
-            return "fields-error";
+            return "add-new-user";
         }
         userService.saveUser(user, roleName);
         return "redirect:/admin";

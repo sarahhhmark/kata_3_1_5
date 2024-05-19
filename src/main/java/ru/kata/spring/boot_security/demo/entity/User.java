@@ -48,7 +48,7 @@ public class User implements UserDetails {
     private String lastname;
     @Column
     @Min(value = 1, message = "Age must be greater than 0")
-    @Max(value = 149, message = "Age must be less than 150")
+    @Max(value = 150, message = "Age must be less than 150")
     private int age;
 
     @ManyToMany
@@ -67,7 +67,7 @@ public class User implements UserDetails {
 
     public User() {}
 
-    public User(String name, String lastname, byte age) {
+    public User(String name, String lastname, int age) {
         this.name = name;
         this.lastname = lastname;
         this.age = age;
