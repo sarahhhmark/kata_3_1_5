@@ -48,12 +48,19 @@ public class UserService implements UserDetailsService {
         return roles.stream().map(r -> new SimpleGrantedAuthority(r.getName())).collect(Collectors.toList());
     }
 
+//    @Transactional
+//    public void saveUser(User user, String roleName) {
+//        if (user.getId() == 0 || !userRepository.findById(user.getId()).get().getPassword().equals(user.getPassword()))
+//            user.setPassword(passwordEncoder.encode(user.getPassword()));
+//        Role role = roleService.findByName(roleName);
+//        user.setRoles(Collections.singletonList(role));
+//        userRepository.save(user);
+//    }
+
     @Transactional
-    public void saveUser(User user, String roleName) {
+    public void saveUser(User user) {
         if (user.getId() == 0 || !userRepository.findById(user.getId()).get().getPassword().equals(user.getPassword()))
             user.setPassword(passwordEncoder.encode(user.getPassword()));
-        Role role = roleService.findByName(roleName);
-        user.setRoles(Collections.singletonList(role));
         userRepository.save(user);
     }
 

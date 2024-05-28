@@ -1,15 +1,13 @@
 package ru.kata.spring.boot_security.demo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.PostMapping;
-import ru.kata.spring.boot_security.demo.entity.Role;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.annotation.*;
 import ru.kata.spring.boot_security.demo.entity.User;
 import ru.kata.spring.boot_security.demo.services.RoleService;
 import ru.kata.spring.boot_security.demo.services.UserService;
@@ -17,10 +15,14 @@ import ru.kata.spring.boot_security.demo.util.UserValidator;
 
 import javax.validation.Valid;
 import java.security.Principal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-@Controller
-@RequestMapping("/admin")
+
+//@Validated
+@RestController
+@RequestMapping("/api/admin/users")
 public class AdminController {
 
     private final UserService userService;
@@ -35,46 +37,100 @@ public class AdminController {
     }
 
     @GetMapping
-    public String allUsers(Principal principal, Model model) {
+    public ResponseEntity<List<User>> allUsers(Principal principal, Model model) {
         List<User> allUsers = userService.getAllUsers();
-        model.addAttribute("allUsers", allUsers);
-        User user = userService.findByUsername(principal.getName());
-        model.addAttribute("adminUser", user);
-        List<Role> roles = roleService.getAllRoles();
-        model.addAttribute("roles", roles);
-//        User newUser = new User();
-//        model.addAttribute("newUser", newUser);
-        return "all_users";
+        return new ResponseEntity<>(allUsers, HttpStatus.OK);
     }
 
-    @GetMapping("/addNewUser")
-    public String addNewUser(Principal principal, Model model) {
-        User admin = userService.findByUsername(principal.getName());
-        model.addAttribute("adminUser", admin);
-        User user = new User();
-        model.addAttribute("user", user);
-        List<Role> roles = roleService.getAllRoles();
-        model.addAttribute("roles", roles);
-        return "add-new-user";
+    @GetMapping("/{id}")
+    public ResponseEntity<User> getUser(@PathVariable long id) {
+        User user = userService.getUser(id).get();
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
-    @PostMapping("/saveUser")
-    public String saveUser(@ModelAttribute("user") @Valid User user, BindingResult bindingResult, @RequestParam("role") String roleName, Model model, Principal principal) {
+//    @PostMapping
+//    public ResponseEntity<HttpStatus> addNewUser(@Valid @RequestBody User user, BindingResult bindingResult) {
+//        userValidator.validate(user, bindingResult);
+//        if (bindingResult.hasErrors()) {
+//            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+//        }
+//        userService.saveUser(user);
+//        return new ResponseEntity<>(HttpStatus.OK);
+//    }
+
+    @PostMapping
+    public ResponseEntity<?> addNewUser(@Valid @RequestBody User user, BindingResult bindingResult) {
+        return getResponse(user, bindingResult);
+    }
+
+//    @PutMapping
+//    public ResponseEntity<HttpStatus> updateUser(@Valid @RequestBody User user, BindingResult bindingResult) {
+//        userValidator.validate(user, bindingResult);
+//        if (bindingResult.hasErrors()) {
+//            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+//        }
+//        userService.saveUser(user);
+//        return new ResponseEntity<>(HttpStatus.OK);
+//    }
+
+    @PutMapping
+    public ResponseEntity<?> updateUser(@Valid @RequestBody User user, BindingResult bindingResult) {
+        return getResponse(user, bindingResult);
+
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<HttpStatus> deleteUser(@PathVariable long id) {
+        User user = userService.getUser(id).get();
+        userService.deleteUser(id);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    private ResponseEntity<?> getResponse(User user, BindingResult bindingResult) {
         userValidator.validate(user, bindingResult);
         if (bindingResult.hasErrors()) {
-            User admin = userService.findByUsername(principal.getName());
-            model.addAttribute("adminUser", admin);
-            List<Role> roles = roleService.getAllRoles();
-            model.addAttribute("roles", roles);
-            return "add-new-user";
+            Map<String, String> errors = new HashMap<>();
+            List<ObjectError> allErrors = bindingResult.getAllErrors();
+            allErrors.forEach(err -> {
+                FieldError fieldError = (FieldError) err;
+                errors.put(fieldError.getField(), fieldError.getDefaultMessage());
+            });
+            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+        } else {
+            userService.saveUser(user);
+            return new ResponseEntity<>(HttpStatus.OK);
         }
-        userService.saveUser(user, roleName);
-        return "redirect:/admin";
     }
 
-    @PostMapping("/deleteUser")
-    public String deleteUser(@RequestParam("id") long id) {
-        userService.deleteUser(id);
-        return "redirect:/admin";
-    }
+
+//    @GetMapping("/addNewUser")
+//    public String addNewUser(Principal principal, Model model) {
+//        User admin = userService.findByUsername(principal.getName());
+//        model.addAttribute("adminUser", admin);
+//        User user = new User();
+//        model.addAttribute("user", user);
+//        List<Role> roles = roleService.getAllRoles();
+//        model.addAttribute("roles", roles);
+//        return "add-new-user";
+//    }
+//
+//    @PostMapping("/saveUser")
+//    public String saveUser(@ModelAttribute("user") @Valid User user, BindingResult bindingResult, @RequestParam("role") String roleName, Model model, Principal principal) {
+//        userValidator.validate(user, bindingResult);
+//        if (bindingResult.hasErrors()) {
+//            User admin = userService.findByUsername(principal.getName());
+//            model.addAttribute("adminUser", admin);
+//            List<Role> roles = roleService.getAllRoles();
+//            model.addAttribute("roles", roles);
+//            return "add-new-user";
+//        }
+//        userService.saveUser(user, roleName);
+//        return "redirect:/admin";
+//    }
+//
+//    @PostMapping("/deleteUser")
+//    public String deleteUser(@RequestParam("id") long id) {
+//        userService.deleteUser(id);
+//        return "redirect:/admin";
+//    }
 }
