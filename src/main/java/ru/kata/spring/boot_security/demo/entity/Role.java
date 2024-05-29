@@ -18,14 +18,22 @@ import java.util.List;
 public class Role implements GrantedAuthority {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private int id;
     @Column(unique = true)
     private String name;
     @Transient
     @ManyToMany(mappedBy = "roles")
     private List<User> users;
 
-    public Long getId() {
+    public Role() {
+    }
+
+    public Role(int id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    public int getId() {
         return id;
     }
 
@@ -37,7 +45,7 @@ public class Role implements GrantedAuthority {
         this.users = users;
     }
 
-    public void setId(Long id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -47,6 +55,10 @@ public class Role implements GrantedAuthority {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getRoleNameWithoutRole() {
+        return name.substring(5);
     }
 
     @Override
